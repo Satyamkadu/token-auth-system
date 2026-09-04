@@ -162,3 +162,5 @@ CACHES = {
         }
     }
 }
+
+AUTH_USER_MODEL = 'auth_api.User'
