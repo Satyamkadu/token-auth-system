@@ -24,9 +24,11 @@ def home_api_root(request):
         "message": "Welcome to the Token Auth API",
         "endpoints": {
             "register": "/auth/register/",
-            "profile": "/auth/profile/",
-            "logout": "/auth/logout/",
-            "devices": "/auth/devices/"
+            "login": "/auth/login/",
+            "refresh": "/auth/refresh/",
+            "me": "/auth/me/",
+            "devices": "/auth/devices/",
+            "logout_device": "DELETE /auth/devices/<session_id>/"
         }
     })
 
