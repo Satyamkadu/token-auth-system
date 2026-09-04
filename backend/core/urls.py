@@ -16,8 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.http import JsonResponse
+
+# Simple view function for the root URL
+def home_api_root(request):
+    return JsonResponse({
+        "message": "Welcome to the Token Auth API",
+        "endpoints": {
+            "register": "/auth/register/",
+            "profile": "/auth/profile/",
+            "logout": "/auth/logout/",
+            "devices": "/auth/devices/"
+        }
+    })
 
 urlpatterns = [
+    path('', home_api_root, name='api-root'),  # Handles http://127.0.0.1:8000/
     path('admin/', admin.site.urls),
     path('auth/', include('auth_api.urls')),
 ]
