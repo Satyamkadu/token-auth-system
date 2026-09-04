@@ -1,0 +1,8 @@
+# .gitignore
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/db.sqlite3
+backend/.env
+.DS_Store
+node_modules/
