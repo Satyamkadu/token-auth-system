@@ -1,265 +1,126 @@
-import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const navigate = useNavigate();
-
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [passwordError, setPasswordError] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState("");
-  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ type: "", text: "" });
 
-  const passwordRegex =
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-  // Validate password whenever password changes
-  useEffect(() => {
-    if (password.length === 0) {
-      setPasswordError("");
-      return;
-    }
-
-    if (!passwordRegex.test(password)) {
-      setPasswordError(
-        "Password must contain at least 8 characters, uppercase, lowercase, number and special character."
-      );
-    } else {
-      setPasswordError("");
-    }
-  }, [password]);
-
-  // Check password match whenever either password changes
-  useEffect(() => {
-    if (confirmPassword.length === 0) {
-      setConfirmPasswordError("");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setConfirmPasswordError("Passwords do not match.");
-    } else {
-      setConfirmPasswordError("");
-    }
-  }, [password, confirmPassword]);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    setMessage("");
-
-    // Final validations before API call
-    if (!username.trim()) {
-      setMessage("Username is required.");
-      return;
-    }
-
-    if (!email.trim()) {
-      setMessage("Email is required.");
-      return;
-    }
-
-    if (!passwordRegex.test(password)) {
-      setMessage("Please enter a valid password.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setMessage("Passwords do not match.");
-      return;
-    }
-
-    const user = {
-      username,
-      email,
-      password,
-    };
+    setLoading(true);
+    setMessage({ type: "", text: "" });
 
     try {
-      setLoading(true);
+      await axios.post("http://localhost:8000/auth/register/", {
+        username,
+        email,
+        password,
+      });
 
-      const response = await axios.post(
-        "http://localhost:8000/auth/register/",
-        user
-      );
-
-      console.log(response.data);
-      setMessage("Registration successful.");
-
-      // Redirect to login after registration
-      navigate("/login");
+      setMessage({ type: "success", text: "Account created successfully. Redirecting..." });
+      setTimeout(() => navigate("/login"), 1500);
     } catch (error) {
-      console.error(error);
-
-      if (error.response) {
-        setMessage(
-          error.response.data.message ||
-            "Registration failed. Please try again."
-        );
-      } else {
-        setMessage("Cannot connect to server.");
-      }
+      setMessage({
+        type: "error",
+        text: error.response?.data?.username?.[0] || error.response?.data?.detail || "Registration failed."
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="register">
-      <div className="login">
-        <div className="flex min-h-screen flex-col justify-center px-6 py-12 lg:px-8">
+    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">
+          Initialize Identity
+        </h2>
+      </div>
 
-          <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-            <h2 className="mt-10 text-center text-2xl font-bold tracking-tight text-gray-900">
-              Create your account
-            </h2>
-          </div>
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-slate-800 py-8 px-4 shadow-xl shadow-slate-900/50 sm:rounded-xl sm:px-10 border border-slate-700">
+          
+          {message.text && (
+            <div className={`mb-6 rounded-md border p-4 ${message.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'}`}>
+              <p className="text-sm">{message.text}</p>
+            </div>
+          )}
 
-          <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-
-            {message && (
-              <div className="mb-4 rounded-md bg-red-50 p-3 text-sm text-red-600">
-                {message}
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-slate-300">
+                Username
+              </label>
+              <div className="mt-1">
+                <input
+                  id="username"
+                  name="username"
+                  type="text"
+                  required
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-slate-600 rounded-md shadow-sm placeholder-slate-500 bg-slate-900 text-slate-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition"
+                />
               </div>
-            )}
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-
-              {/* Username */}
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium text-gray-900"
-                >
-                  Username
-                </label>
-
-                <div className="mt-2">
-                  <input
-                    id="username"
-                    type="text"
-                    name="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600"
-                  />
-                </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-slate-300">
+                Email Address
+              </label>
+              <div className="mt-1">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-slate-600 rounded-md shadow-sm placeholder-slate-500 bg-slate-900 text-slate-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition"
+                />
               </div>
+            </div>
 
-              {/* Email */}
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-900"
-                >
-                  Email
-                </label>
-
-                <div className="mt-2">
-                  <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    autoComplete="email"
-                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600"
-                  />
-                </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300">
+                Secure Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-slate-600 rounded-md shadow-sm placeholder-slate-500 bg-slate-900 text-slate-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition"
+                />
               </div>
+            </div>
 
-              {/* Password */}
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-900"
-                >
-                  Password
-                </label>
-
-                <div className="mt-2">
-                  <input
-                    id="password"
-                    type="password"
-                    name="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600"
-                  />
-                </div>
-
-                {passwordError && (
-                  <p className="mt-2 text-sm text-red-500">
-                    {passwordError}
-                  </p>
-                )}
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="block text-sm font-medium text-gray-900"
-                >
-                  Confirm Password
-                </label>
-
-                <div className="mt-2">
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    name="confirmPassword"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 outline-gray-300 focus:outline-2 focus:outline-indigo-600"
-                  />
-                </div>
-
-                {confirmPasswordError && (
-                  <p className="mt-2 text-sm text-red-500">
-                    {confirmPasswordError}
-                  </p>
-                )}
-              </div>
-
-              {/* Submit */}
-              <div>
-                <button
-                  type="submit"
-                  disabled={
-                    loading ||
-                    passwordError !== "" ||
-                    confirmPasswordError !== ""
-                  }
-                  className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-400"
-                >
-                  {loading ? "Creating account..." : "Sign Up"}
-                </button>
-              </div>
-            </form>
-
-            <p className="mt-10 text-center text-sm text-gray-500">
-              Already have an account?{" "}
-              <Link
-                to="/login"
-                className="font-semibold text-indigo-600 hover:text-indigo-500"
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-slate-900 disabled:opacity-50 transition"
               >
-                Sign In
-              </Link>
-            </p>
+                {loading ? "Registering..." : "Create Account"}
+              </button>
+            </div>
+          </form>
 
+          <div className="mt-6 text-center">
+            <Link to="/login" className="font-medium text-slate-400 hover:text-slate-300 text-sm transition">
+              Already have an identity? Return to login.
+            </Link>
           </div>
+          
         </div>
       </div>
     </div>

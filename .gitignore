@@ -1,24 +1,29 @@
-# .gitignore
-backend/venv/
-backend/__pycache__/
-backend/*.pyc
-backend/db.sqlite3
-backend/.env
-backend/.venv
-.DS_Store
-node_modules/
-.postman/
-postman/
-backend/auth_api/__pycache__
-backend/core/__pycache__
-venv
+# =========================
+# BACKEND (Django / Python)
+# =========================
+venv/
+.venv/
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+db.sqlite3
 
-venv/
-.venv/
-
+# =========================
+# FRONTEND (React / Vite)
+# =========================
 node_modules/
+dist/
+dist-ssr/
+
+# =========================
+# ENVIRONMENT & SECRETS
+# =========================
 .env
+
+# =========================
+# TOOLS & OS
+# =========================
+.DS_Store
+.postman/
+postman/

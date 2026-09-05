@@ -3,11 +3,10 @@ import { Navigate, Outlet } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
 
 const ProtectedRoute = () => {
-  // get token from context if you are using context for auth state management
-  const { token } = useContext(AuthContext);
+  // Check the persistent refresh token, not the volatile access token
+  const { refreshToken } = useContext(AuthContext);
 
-
-  if (!token) {
+  if (!refreshToken) {
     return <Navigate to="/login" replace />;
   }
 

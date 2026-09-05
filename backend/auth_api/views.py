@@ -2,6 +2,7 @@ from rest_framework import generics, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
+from rest_framework.permissions import IsAuthenticated
 
 from .serializers import RegisterSerializer, UserSerializer
 from .utils import add_device_session
@@ -89,8 +90,14 @@ class LogoutDeviceView(APIView):
 
 
 class AdminOnlyDataView(APIView):
-    # This automatically blocks any user who isn't an admin
-    permission_classes = (IsAdminUserRole,) 
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({"message": "Welcome Admin. Here is the restricted data."})
+        # 1. Enforce backend RBAC security
+        if request.user.role != 'admin':
+            return Response({"error": "Insufficient clearance."}, status=403)
+        
+        # 2. Fetch all registered users
+        users = User.objects.all().values('id', 'username', 'email', 'role', 'date_joined')
+        
+        return Response({"users": list(users)})

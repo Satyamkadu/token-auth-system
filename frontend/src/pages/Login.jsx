@@ -1,76 +1,41 @@
-import React, { useState , useContext} from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../components/AuthContext";
 
-
-
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
-
-  //React Context API can be used to manage the login state across the application. For simplicity, we are using localStorage here.
-  const { login} = useContext(AuthContext);
+  const { login } = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setLoading(true);
     setMessage("");
-    console.log(username, " ", password);
-
-    const user = {
-      username,
-      password,
-    };
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/auth/login/",
-        user,
+      const response = await axios.post("http://localhost:8000/auth/login/", {
+        username,
+        password,
+      });
 
-      );
-
-      console.log("Login response:", response.data);
-
-      // // Save token returned by Django
       if (response.status === 200) {
         login(
           response.data.access,
           response.data.refresh,
           response.data.session_id
         );
+        navigate("/profile");
       }
-
-      // Redirect after successful login
-      navigate("/profile");
     } catch (error) {
-      console.error("Login error:", error);
-
-      if (error.response) {
-        setMessage(
-          error.response.data.message ||
-            error.response.data.detail ||
-            "Invalid email or password.",
-        );
-      } else {
-        setMessage("Cannot connect to server.");
-      }
-
-      console.log("STATUS:", error.response?.status);
-      console.log("DATA:", error.response?.data);
-      console.log("FULL ERROR:", error);
-
       setMessage(
         error.response?.data?.message ||
-          error.response?.data?.detail ||
-          JSON.stringify(error.response?.data) ||
-          "Login failed",
+        error.response?.data?.detail ||
+        "Invalid username or password."
       );
     } finally {
       setLoading(false);
@@ -78,104 +43,87 @@ const Login = () => {
   };
 
   return (
-    <div className="login">
-      <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
+    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-white tracking-tight">
+          System Authentication
+        </h2>
+        <p className="mt-2 text-center text-sm text-slate-400">
+          Sign in to access the secure dashboard
+        </p>
+      </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-slate-800 py-8 px-4 shadow-xl shadow-slate-900/50 sm:rounded-xl sm:px-10 border border-slate-700">
+          
           {message && (
-            <div className="mb-5 rounded-md bg-red-50 p-3 text-sm text-red-600">
-              {message}
+            <div className="mb-6 rounded-md bg-red-500/10 border border-red-500/20 p-4">
+              <p className="text-sm text-red-400">{message}</p>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email */}
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm/6 font-medium text-gray-900"
-              >
-                Email
+              <label htmlFor="username" className="block text-sm font-medium text-slate-300">
+                Username
               </label>
-
-              <div className="mt-2">
+              <div className="mt-1">
                 <input
-                  id="email"
-                  // name="email"
-                  // type="email"
-                  // value={email}
-                  // onChange={(e) => setEmail(e.target.value)}
+                  id="username"
                   name="username"
                   type="text"
+                  required
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  required
-                  autoComplete="email"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                  className="appearance-none block w-full px-3 py-2 border border-slate-600 rounded-md shadow-sm placeholder-slate-500 bg-slate-900 text-slate-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition"
                 />
               </div>
             </div>
 
-            {/* Password */}
             <div>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm/6 font-medium text-gray-900"
-                >
-                  Password
-                </label>
-
-                <div className="text-sm">
-                  <Link
-                    to="/forgot-password"
-                    className="font-semibold text-indigo-600 hover:text-indigo-500"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
-              </div>
-
-              <div className="mt-2">
+              <label htmlFor="password" className="block text-sm font-medium text-slate-300">
+                Password
+              </label>
+              <div className="mt-1">
                 <input
                   id="password"
                   name="password"
                   type="password"
+                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                  className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+                  className="appearance-none block w-full px-3 py-2 border border-slate-600 rounded-md shadow-sm placeholder-slate-500 bg-slate-900 text-slate-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition"
                 />
               </div>
             </div>
 
-            {/* Login button */}
             <div>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-slate-900 disabled:opacity-50 transition"
               >
-                {loading ? "Signing in..." : "Sign in"}
+                {loading ? "Authenticating..." : "Sign in"}
               </button>
             </div>
           </form>
 
-          <p className="mt-10 text-center text-sm/6 text-gray-500">
-            Don't have an account?{" "}
-            <Link
-              to="/register"
-              className="font-semibold text-indigo-600 hover:text-indigo-500"
-            >
-              Sign Up
-            </Link>
-          </p>
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-700" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-slate-800 text-slate-400">Need an account?</span>
+              </div>
+            </div>
+            <div className="mt-6 text-center">
+              <Link to="/register" className="font-medium text-indigo-400 hover:text-indigo-300 transition">
+                Create a new identity
+              </Link>
+            </div>
+          </div>
+          
         </div>
       </div>
     </div>
