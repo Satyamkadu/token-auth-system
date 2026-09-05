@@ -1,10 +1,9 @@
-import React,{useState, useEffect} from "react";
+import React,{useState, useEffect, useContext} from "react";
 import axios from "axios";
+import { AuthContext } from "../components/AuthContext";
 
 const UserProfile = () => {
-
-  const token = localStorage.getItem("token");
-  // const userId = localStorage.getItem("id");
+  const {token  , logout} = useContext(AuthContext);
   const [userData, setUserData] = useState(null);
 
   if (!token) {
@@ -29,7 +28,7 @@ const UserProfile = () => {
     };
 
     fetchUserData();
-  }, [token,]);
+  }, [token]);
 
   const user = {
     username: userData?.username || "John Doe",
@@ -41,9 +40,8 @@ const UserProfile = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("sessionId");
-    localStorage.removeItem("refresh");
+//remove token from react context 
+    logout(null, null, null);
     window.location.href = "/login";
   };
 

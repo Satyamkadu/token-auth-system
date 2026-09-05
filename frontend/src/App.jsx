@@ -11,12 +11,6 @@ import UserProfile from "./pages/UserProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PageNotFound from "./components/PageNotFound";
 
-// const token = localStorage.getItem("token");
-// if (!token) {
-//   window.location.href = "/login";
-// }else{
-//   window.location.href = "/profile";
-// }
 
 function App() {
   return (

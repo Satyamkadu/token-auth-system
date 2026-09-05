@@ -7,3 +7,8 @@ backend/.env
 backend/.venv
 .DS_Store
 node_modules/
+.postman/
+postman/
+backend/auth_api/__pycache__
+backend/core/__pycache__
+venv

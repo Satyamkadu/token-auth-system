@@ -1,8 +1,9 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { Link } from 'react-router-dom'
+import { AuthContext } from './AuthContext';
 
 const Navbar = () => {
-  const token = localStorage.getItem("token");
+  const { token } = useContext(AuthContext);
 
   return (
     <div className="flex justify-between items-center px-8 py-6  bg-gray-800 text-white mx">

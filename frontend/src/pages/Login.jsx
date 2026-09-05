@@ -1,6 +1,9 @@
-import React, { useState } from "react";
+import React, { useState , useContext} from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../components/AuthContext";
+
+
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -10,6 +13,9 @@ const Login = () => {
   const [message, setMessage] = useState("");
 
   const navigate = useNavigate();
+
+  //React Context API can be used to manage the login state across the application. For simplicity, we are using localStorage here.
+  const { login} = useContext(AuthContext);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,19 +33,19 @@ const Login = () => {
       const response = await axios.post(
         "http://localhost:8000/auth/login/",
         user,
+
       );
 
       console.log("Login response:", response.data);
 
       // // Save token returned by Django
-      if (response.data.access) {
-        localStorage.setItem("token", response.data.access);
-        localStorage.setItem("sessionId", response.data.session_id); 
-        localStorage.setItem("refresh", response.data.refresh);
+      if (response.status === 200) {
+        login(
+          response.data.access,
+          response.data.refresh,
+          response.data.session_id
+        );
       }
-
-      // Save login status
-      localStorage.setItem("isLoggedIn", "true");
 
       // Redirect after successful login
       navigate("/profile");
