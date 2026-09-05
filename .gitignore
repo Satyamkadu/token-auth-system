@@ -12,3 +12,13 @@ postman/
 backend/auth_api/__pycache__
 backend/core/__pycache__
 venv
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+venv/
+.venv/
+
+node_modules/
+.env
